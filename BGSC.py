@@ -14,14 +14,18 @@ from players import *
 class BoardGamesScoreCounter(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-    p = PlayersManagement()
     
+    p = PlayersManagement()
+
     def build(self):
         self.theme_cls.theme_style = "Light"
         #self.theme_cls.theme_style = "Dark"
         Builder.load_file('./kv/players.kv')
         return Builder.load_file('./kv/bgsc.kv')
         
+    def open_player_screen(self):
+        #p = PlayersManagement()
+        self.p.players_load_screen()
+            
 if __name__ == '__main__':
     BoardGamesScoreCounter().run()

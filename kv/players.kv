@@ -11,6 +11,7 @@
         MDTextField:
             id: tfPlayerName
             hint_text: "Name"
+            max_text_length: 50
             pos_hint: {"center_x": 1, "center_y": .9}
             
         MDIconButton:
@@ -20,6 +21,7 @@
             
             
     GridLayout:
+        id: colorsgrid
         cols: 4
         rows: 5
         #Red
@@ -30,9 +32,9 @@
             icon_color: 244/255,67/255,54/255,1
             size_hint: (0.25, 0.2)
             on_release:
-                app.p.reset_color_selection();
-                red.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+                app.p.reset_color_selection(button = self);
+                #red.icon = "checkbox-marked-circle";
+                #app.p.selected_player_color = self.icon_color
         #Pink
         MDIconButton:
             id: pink
@@ -40,12 +42,7 @@
             theme_icon_color: "Custom"
             icon_color: 233/255,30/255,99/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                pink.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
-        #Pink
-        
+            on_release: app.p.reset_color_selection(button = self);
         #Purple
         MDIconButton:
             id: purple
@@ -53,10 +50,7 @@
             theme_icon_color: "Custom"
             icon_color: 156/255,39/255,176/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                purple.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #DeepPurple
         MDIconButton:
             id: deepPurple
@@ -64,10 +58,7 @@
             theme_icon_color: "Custom"
             icon_color: 103/255,58/255,183/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                deepPurple.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Indigo
         MDIconButton:
             id: indigo
@@ -75,10 +66,7 @@
             theme_icon_color: "Custom"
             icon_color: 63/255,81/255,181/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                indigo.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Blue
         MDIconButton:
             id: blue
@@ -86,10 +74,7 @@
             theme_icon_color: "Custom"
             icon_color: 33/255,150/255,243/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                blue.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #LightBlue
         MDIconButton:
             id: lightBlue
@@ -97,10 +82,7 @@
             theme_icon_color: "Custom"
             icon_color: 3/255,169/255,244/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                lightBlue.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Cyan
         MDIconButton:
             id: cyan
@@ -108,10 +90,7 @@
             theme_icon_color: "Custom"
             icon_color: 0/255,188/255,212/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                cyan.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Teal
         MDIconButton:
             id: teal
@@ -119,10 +98,7 @@
             theme_icon_color: "Custom"
             icon_color: 0/255,150/255,136/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                teal.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Green
         MDIconButton:
             id: green
@@ -130,10 +106,7 @@
             theme_icon_color: "Custom"
             icon_color: 76/255,175/255,80/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                green.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #LightGreen
         MDIconButton:
             id: lightGreen
@@ -141,10 +114,7 @@
             theme_icon_color: "Custom"
             icon_color: 139/255,195/255,74/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                lightGreen.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Lime
         MDIconButton:
             id: lime
@@ -152,10 +122,7 @@
             theme_icon_color: "Custom"
             icon_color: 205/255,220/255,57/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                lime.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Yellow
         MDIconButton:
             id: yellow
@@ -163,10 +130,7 @@
             theme_icon_color: "Custom"
             icon_color: 255/255,253/255,59/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                yellow.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Amber
         MDIconButton:
             id: amber
@@ -174,10 +138,7 @@
             theme_icon_color: "Custom"
             icon_color: 255/255,193/255,7/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                amber.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Orange
         MDIconButton:
             id: orange
@@ -185,10 +146,7 @@
             theme_icon_color: "Custom"
             icon_color: 255/255,152/255,0/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                orange.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #DeepOrange
         MDIconButton:
             id: deepOrange
@@ -196,10 +154,7 @@
             theme_icon_color: "Custom"
             icon_color: 255/255,87/255,34/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                deepOrange.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Brown
         MDIconButton:
             id: brown
@@ -207,10 +162,7 @@
             theme_icon_color: "Custom"
             icon_color: 121/255,85/255,72/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                brown.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Grey
         MDIconButton:
             id: grey
@@ -218,10 +170,7 @@
             theme_icon_color: "Custom"
             icon_color: 178/255,178/255,178/255,1 
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                grey.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #White
         MDIconButton:
             id: white
@@ -229,10 +178,7 @@
             theme_icon_color: "Custom"
             icon_color: 230/255,230/255,230/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                white.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)
         #Black
         MDIconButton:
             id: black
@@ -240,7 +186,4 @@
             theme_icon_color: "Custom"
             icon_color: 0/255,0/255,0/255,1
             size_hint: (0.25, 0.2)
-            on_release:
-                app.p.reset_color_selection();
-                black.icon = "checkbox-marked-circle";
-                app.p.selected_player_color = self.icon_color
+            on_release: app.p.reset_color_selection(button = self)

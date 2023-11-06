@@ -2,6 +2,7 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.image import Image
+import inspect
 
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList, OneLineAvatarIconListItem, IconLeftWidget, IconRightWidget
@@ -11,7 +12,13 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.icon_definitions import md_icons
 
+
+from db import *
+
+dbo = DBOperations()
+
 def assign_icon(txtName):
+    print(inspect.currentframe().f_code.co_name)
     firstLetter = txtName[0].lower()
     if ord(firstLetter) >= 97 and ord(firstLetter) <= 122:
         return f"alpha-{firstLetter}-circle"
@@ -30,13 +37,20 @@ class PlayerWithAvatar(OneLineAvatarIconListItem):
         self.pk = pk
         
 class PlayersManagement(MDScreen):
+    #def __init__(self):
+        #dbo = DBOperations()
     
+    player_edit_content_cls = None
     players_mdlist = None
     player_dialog = None
     delete_player_confirmation_dialog = None
+    running_app = None
     selected_player = ObjectProperty()
     selected_player_left_icon = ObjectProperty()
     selected_player_color = [0,0,0,1]
+    selected_player_id = 0
+    selected_player_name = "Player X"
+    selected_player_avatar = "alpha-x-circle"
     action = "Add"
     
     colors_dict = {
@@ -62,11 +76,24 @@ class PlayersManagement(MDScreen):
         "black":["checkbox-blank-circle",[0/255,0/255,0/255,1]]
     }
 
-    def set_players_mdlist(self):
-        app = MDApp.get_running_app()  # get a refrence to the running App
-        self.players_mdlist = app.root.ids.mdlPlayers
+    #def set_running_app(self)
+#        print(inspect.currentframe().f_code.co_name)
+#        
+
+#    def set_players_mdlist(self):
+#        print(inspect.currentframe().f_code.co_name)
+#        app = MDApp.get_running_app()  # get a refrence to the running App
         
+
+    def players_load_screen(self):
+        print(inspect.currentframe().f_code.co_name)
+        self.running_app = MDApp.get_running_app()
+        self.players_mdlist = self.running_app.root.ids.mdlPlayers
+        db_players = dbo.get_player(-1)
+        self.load_player(db_players)
+                
     def show_player_dialog(self, action):
+        print(inspect.currentframe().f_code.co_name)
         if not self.player_dialog:
             self.action = action
             self.player_edit_content_cls = PlayerEdit()
@@ -77,7 +104,7 @@ class PlayersManagement(MDScreen):
                 content_cls = self.player_edit_content_cls,
                 buttons=[
                     MDFlatButton(text='CANCEL', on_release=self.close_player_dialog),
-                    MDFlatButton(text='OK', on_release=lambda x:self.save_player(x,self.player_edit_content_cls, action))]
+                    MDFlatButton(text='OK', on_release=lambda x:self.save_player(self.player_edit_content_cls, action))]
                 )
             if action == "Edit":    #when empty then is always in error/red which I want to show only after not providing a name
                 self.player_edit_content_cls.ids.tfPlayerName.required = True
@@ -85,65 +112,116 @@ class PlayersManagement(MDScreen):
         self.player_dialog.open()
 
     def close_player_dialog(self, *args):
+        print(inspect.currentframe().f_code.co_name)
         self.player_dialog.dismiss()
         self.player_dialog = None
         self.selected_player_color = [0,0,0,1]
         
-    def save_player(self, instance_btn, content_cls, action):
-        self.set_players_mdlist()
-        if len(self.player_edit_content_cls.ids.tfPlayerName.text) == 0 or None: 
+    def save_player(self, content_cls, action):
+        method = inspect.currentframe().f_code.co_name
+        print(method)
+        #self.set_players_mdlist()
+        if action == "Add" and (len(self.player_edit_content_cls.ids.tfPlayerName.text) == 0 or len(self.player_edit_content_cls.ids.tfPlayerName.text) > 50):
+            print(method + "-Add-0")
             self.player_edit_content_cls.ids.tfPlayerName.required = True
             self.player_edit_content_cls.ids.tfPlayerName.error = True
             self.player_edit_content_cls.ids.tfPlayerName.helper_text_mode = "on_error"
             return
         if action == "Add":
+            print(method + "-Add-assign")
             player_name = self.player_edit_content_cls.ids.tfPlayerName.text
-            player_widget = PlayerWithAvatar(text=player_name)
+            player_color = self.selected_player_color
+            player_avatar = assign_icon(player_name)
+        if action == "Load":
+            print(method + "-Load-assign")
+            player_id = self.selected_player_id
+            player_name = self.selected_player_name
+            player_color = self.selected_player_color
+            player_avatar = self.selected_player_avatar
+        if action == "Edit":
+            print(method + "-Edit-assign")
+            player_id = self.selected_player_id
+            player_name = self.player_edit_content_cls.ids.tfPlayerName.text
+            player_color = self.selected_player_color
+            player_avatar = assign_icon(player_name)
+        if action == "Load":
+            print(method + "-Load-action")
+            player_widget = PlayerWithAvatar(text=player_name, pk = player_id)
             player_left_avatar_widget = IconLeftWidget(
                 id = "left_widget",
-                icon = assign_icon(player_name),
+                icon = player_avatar,
                 theme_icon_color = "Custom",
-                icon_color = self.selected_player_color,
+                icon_color = player_color,
                 )
             player_right_icon_widget = IconRightWidget(
                 icon="pencil",
                 on_release = lambda x: self.change_line_item(line_item = player_widget, left_avatar = player_left_avatar_widget),
-                text = self.player_edit_content_cls.ids.tfPlayerName.text
+                #text = self.player_edit_content_cls.ids.tfPlayerName.text
             )
             player_widget.add_widget(player_left_avatar_widget)
             player_widget.add_widget(player_right_icon_widget)
-            #app.root.ids.mdlPlayers.add_widget(player_widget)
             self.players_mdlist.add_widget(player_widget)
-        elif action == "Edit":
-            self.selected_player.text = self.player_edit_content_cls.ids.tfPlayerName.text
-            self.selected_player_left_icon.icon = assign_icon(self.player_edit_content_cls.ids.tfPlayerName.text)
-            self.selected_player_left_icon.icon_color = self.selected_player_color
-        self.close_player_dialog()
-    
-    def reset_color_selection(self):
+        if action == "Add":
+            print(method + "-Add-action")
+            player_id = dbo.insert_player(player_name, player_avatar, player_color)
+            print("inserted player id")
+            print(player_id)
+            new_player = dbo.get_player(player_id[0][0])
+            self.load_player(new_player)
+        if action == "Edit":
+            print(method + "-Edit-action")
+            self.selected_player.text = player_name
+            self.selected_player_left_icon.icon_color = player_color
+            self.selected_player_left_icon.icon = player_avatar
+            dbo.update_player(player_id,player_name, player_avatar, player_color)
+        if action == "Add" or action == "Edit":
+            print(method + "-CloseDialog")
+            self.close_player_dialog()
+
+    def get_id(self,  butt_instance):
+        print(inspect.currentframe().f_code.co_name)
+        the_id = None
+        for butt_id, button in self.player_edit_content_cls.ids.items():
+            if button == butt_instance:
+                the_id = butt_id
+                break
+        return the_id
+            
+    def reset_color_selection(self, button):
+        print(inspect.currentframe().f_code.co_name)
+        selected_color_id = self.get_id(butt_instance = button)
+        #self.player_edit_content_cls = PlayerEdit()
+        #print(self.player_edit_content_cls)
         for color in self.colors_dict:
             self.player_edit_content_cls.ids[color].icon = self.colors_dict[color][0]
+        self.player_edit_content_cls.ids[selected_color_id].icon = "checkbox-marked-circle"
+        self.selected_player_color = button.icon_color
 
     def change_line_item(self, line_item, left_avatar):
+        print(inspect.currentframe().f_code.co_name)
         # Here 'entry' is the widget that has been passed.
         # Store this entry to access it from anywhere in this class.
         self.selected_player = line_item
         self.selected_player_left_icon = left_avatar
-        self.selected_player_left_icon_color = self.selected_player_left_icon.icon_color
+        self.selected_player_left_icon_color = left_avatar.icon_color
         self.show_player_dialog(action="Edit")
         self.player_edit_content_cls.ids.tfPlayerName.text = self.selected_player.text
         selected_icon_color_name = list(self.colors_dict.keys())[list(self.colors_dict.values()).index(["checkbox-blank-circle",self.selected_player_left_icon_color])]
         self.player_edit_content_cls.ids[selected_icon_color_name].icon = "checkbox-marked-circle"
+        self.selected_player_id = self.selected_player.pk
  
     def close_delete_player_confirmation_dialog(self, *args, action):
-        self.set_players_mdlist()
+        print(inspect.currentframe().f_code.co_name)
+        #self.set_players_mdlist()
         self.delete_player_confirmation_dialog.dismiss()
         self.delete_player_confirmation_dialog = None
         if action == "YES":
             self.close_player_dialog()
+            dbo.delete_player_soft(id= self.selected_player.pk)
             self.players_mdlist.remove_widget(self.selected_player)
             
     def show_delete_player_confirmation_dialog(self):
+        print(inspect.currentframe().f_code.co_name)
         if not self.delete_player_confirmation_dialog:
             self.delete_player_confirmation_dialog = MDDialog(
                 text="Delete player?",
@@ -155,8 +233,22 @@ class PlayersManagement(MDScreen):
         self.delete_player_confirmation_dialog.open()
             
     def delete_player(self):
+        print(inspect.currentframe().f_code.co_name)
         if self.action == "Add":
             self.player_edit_content_cls.ids.tfPlayerName.text = ""
         if self.action == "Edit":
             self.show_delete_player_confirmation_dialog()
-            
+      
+    def load_player(self, players_from_db):
+        print(inspect.currentframe().f_code.co_name)
+        if players_from_db != []:
+            for player in players_from_db:
+                self.selected_player_id = player[0]
+                self.selected_player_name = player[1]
+                self.selected_player_avatar = player[2]
+                self.selected_player_color = []
+                self.selected_player_color.append(player[3]/255)
+                self.selected_player_color.append(player[4]/255)
+                self.selected_player_color.append(player[5]/255)
+                self.selected_player_color.append(player[6])
+                self.save_player(None, action = "Load")

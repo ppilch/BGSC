@@ -1,4 +1,4 @@
-l<DrawerClickableItem@MDNavigationDrawerItem>
+<DrawerClickableItem@MDNavigationDrawerItem>
 #    focus_color: "#e7e4c0"
 #    text_color: "#4a4939"
 #    icon_color: "#4a4939"
@@ -34,6 +34,7 @@ MDScreen:
             #Players
             MDScreen:
                 name: "players"
+                on_pre_enter: app.open_player_screen()
                 BoxLayout:
                     id: playersBox
                     orientation: "vertical"
@@ -96,7 +97,18 @@ MDScreen:
                     pos_hint: {"top": 1}
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
                 BoxLayout:
-                                             
+                    id: optionsgrid
+                    #cols: 2
+                    MDLabel:
+                        text: "Dark mode"
+                        size_hint_x: 0.8
+                        pos_hint: {"top": 1}
+                    MDSwitch:
+                        id: darkmode
+                        size_hint_x: 0.2
+                        pos_hint: {"top": 1}
+                        #pos_hint: {"x": 1, "center_y": .9}
+
         MDNavigationDrawer:
             id: nav_drawer
             radius: (0, 16, 16, 0)
