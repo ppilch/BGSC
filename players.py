@@ -1,9 +1,10 @@
+####################################################################
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.image import Image
 import inspect
-
+ 
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList, OneLineAvatarIconListItem, IconLeftWidget, IconRightWidget
 from kivymd.app import App, MDApp
@@ -11,12 +12,11 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.icon_definitions import md_icons
-
-
+ 
 from db import *
-
+ 
 dbo = DBOperations()
-
+ 
 def assign_icon(txtName):
     print(inspect.currentframe().f_code.co_name)
     firstLetter = txtName[0].lower()
@@ -29,7 +29,7 @@ def assign_icon(txtName):
                 
 class PlayerEdit(BoxLayout):
     pass
-
+ 
 class PlayerWithAvatar(OneLineAvatarIconListItem):
     def __init__(self, pk=None, **kwargs):
         super().__init__(**kwargs)
@@ -47,11 +47,12 @@ class PlayersManagement(MDScreen):
     running_app = None
     selected_player = ObjectProperty()
     selected_player_left_icon = ObjectProperty()
-    selected_player_color = [0,0,0,1]
+    selected_player_color = [51,51,51,1]
     selected_player_id = 0
     selected_player_name = "Player X"
     selected_player_avatar = "alpha-x-circle"
     action = "Add"
+    players_already_loaded_from_db = False
     
     colors_dict = {
         "red":["checkbox-blank-circle",[244/255,67/255,54/255,1]],
@@ -73,24 +74,17 @@ class PlayersManagement(MDScreen):
         "brown":["checkbox-blank-circle",[121/255,85/255,72/255,1]],
         "grey":["checkbox-blank-circle",[178/255,178/255,178/255,1 ]],
         "white":["checkbox-blank-circle",[230/255,230/255,230/255,1]],
-        "black":["checkbox-blank-circle",[0/255,0/255,0/255,1]]
+        "black":["checkbox-blank-circle",[51/255,51/255,51/255,1]]
     }
-
-    #def set_running_app(self)
-#        print(inspect.currentframe().f_code.co_name)
-#        
-
-#    def set_players_mdlist(self):
-#        print(inspect.currentframe().f_code.co_name)
-#        app = MDApp.get_running_app()  # get a refrence to the running App
-        
-
+ 
     def players_load_screen(self):
         print(inspect.currentframe().f_code.co_name)
-        self.running_app = MDApp.get_running_app()
-        self.players_mdlist = self.running_app.root.ids.mdlPlayers
-        db_players = dbo.get_player(-1)
-        self.load_player(db_players)
+        if self.players_already_loaded_from_db == False:
+            self.running_app = MDApp.get_running_app()
+            self.players_mdlist = self.running_app.root.ids.mdlPlayers
+            db_players = dbo.get_player(-1)
+            self.load_player(db_players)
+            self.players_already_loaded_from_db = True
                 
     def show_player_dialog(self, action):
         print(inspect.currentframe().f_code.co_name)
@@ -110,12 +104,12 @@ class PlayersManagement(MDScreen):
                 self.player_edit_content_cls.ids.tfPlayerName.required = True
                 self.player_edit_content_cls.ids.tfPlayerName.helper_text_mode = "on_error"
         self.player_dialog.open()
-
+ 
     def close_player_dialog(self, *args):
         print(inspect.currentframe().f_code.co_name)
         self.player_dialog.dismiss()
         self.player_dialog = None
-        self.selected_player_color = [0,0,0,1]
+        self.selected_player_color = [51,51,51,1]
         
     def save_player(self, content_cls, action):
         method = inspect.currentframe().f_code.co_name
@@ -177,7 +171,7 @@ class PlayersManagement(MDScreen):
         if action == "Add" or action == "Edit":
             print(method + "-CloseDialog")
             self.close_player_dialog()
-
+ 
     def get_id(self,  butt_instance):
         print(inspect.currentframe().f_code.co_name)
         the_id = None
@@ -196,7 +190,7 @@ class PlayersManagement(MDScreen):
             self.player_edit_content_cls.ids[color].icon = self.colors_dict[color][0]
         self.player_edit_content_cls.ids[selected_color_id].icon = "checkbox-marked-circle"
         self.selected_player_color = button.icon_color
-
+ 
     def change_line_item(self, line_item, left_avatar):
         print(inspect.currentframe().f_code.co_name)
         # Here 'entry' is the widget that has been passed.

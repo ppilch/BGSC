@@ -7,7 +7,7 @@
     BoxLayout:
         size_hint: (1,0.1)
         orientation: "horizontal"
-
+ 
         MDTextField:
             id: tfPlayerName
             hint_text: "Name"
@@ -176,7 +176,7 @@
             id: white
             icon: "circle"
             theme_icon_color: "Custom"
-            icon_color: 230/255,230/255,230/255,1
+            icon_color: 220/255,220/255,220/255,1
             size_hint: (0.25, 0.2)
             on_release: app.p.reset_color_selection(button = self)
         #Black
@@ -184,6 +184,6 @@
             id: black
             icon: "circle"
             theme_icon_color: "Custom"
-            icon_color: 0/255,0/255,0/255,1
+            icon_color: 51/255,51/255,51/255,1
             size_hint: (0.25, 0.2)
             on_release: app.p.reset_color_selection(button = self)

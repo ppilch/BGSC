@@ -5,13 +5,25 @@ class DBOperations:
     def __init__(self):
         self.conn = sqlite3.connect('bgsc.db')
         self.cursor = self.conn.cursor()
-        #self.drop_all_objects()
-        self.create_player_table()
-        
+        self.drop_all_objects()
+        #self.create_player_table()
+        self.create_setting_table()
+ 
+    ################
+    ##### common #####
+    ################        
+                      
     def drop_all_objects(self):
         print(inspect.currentframe().f_code.co_name)
-        self.cursor.execute( "DROP TABLE IF EXISTS player")
-        
+        self.cursor.execute( 
+                                            #"DROP TABLE IF EXISTS player; "
+                                            "DROP TABLE IF EXISTS option; "
+                                            )
+                                            
+    ################
+    ##### player #####
+    ################
+            
     def create_player_table(self):
         print(inspect.currentframe().f_code.co_name)
         self.cursor.execute( "CREATE TABLE IF NOT EXISTS player "
@@ -81,7 +93,7 @@ class DBOperations:
     def get_player(self, id):
         print(inspect.currentframe().f_code.co_name)
         players = self.cursor.execute(
-                                            "SELECT  "
+                                            "SELECT "
                                             "id, name, avatar, color_r, color_g, color_b, color_t, is_deleted "
                                             "FROM "
                                             "player "
@@ -91,6 +103,52 @@ class DBOperations:
                                             ).fetchall()
         self.conn.commit()
         return players
+
+    ################
+    ##### setting #####
+    ################
+
+    def create_setting_table(self):
+        print(inspect.currentframe().f_code.co_name)
+        self.cursor.execute( "CREATE TABLE IF NOT EXISTS setting "
+                                            "( id INTEGER PRIMARY KEY AUTOINCREMENT"
+                                            ", name VARCHAR(50) NOT NULL"
+                                            ", value VARCHAR(50) NOT NULL"
+                                            "); "
+                                            )
+        self.cursor.execute( 
+                                            "INSERT INTO setting "
+                                            "(name, value)"
+                                            "VALUES "
+                                            "('darkmode', 'Light')"
+                                            )
+        self.conn.commit()        
+        
+        
+    def update_setting(self, name, value):
+        print(inspect.currentframe().f_code.co_name)
+        self.cursor.execute( "UPDATE setting "
+                                            "SET "
+                                            f"value = '{value}' "
+                                            "WHERE "
+                                            f"name = '{name}' "
+                                            )
+        self.conn.commit()
+
+    def get_setting(self, name):
+        print(inspect.currentframe().f_code.co_name)
+        settings = self.cursor.execute(
+                                            "SELECT "
+                                            "value "
+                                            "FROM "
+                                            "setting "
+                                            "WHERE "
+                                            f"(name = '{name}' or '{name}' = '-1') "
+                                            ).fetchall()
+        self.conn.commit()
+        return settings
+                        
+                
         
 #dbo = DBOperations()
 #dbo.insert_player("Pawel", "alpha-p-circle", [0, 0, 0, 1])

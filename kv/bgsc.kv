@@ -4,17 +4,11 @@
 #    icon_color: "#4a4939"
 #    ripple_color: "#c5bdd2"
 #    selected_color: "#0c6c4d"
-
-
-<DrawerLabelItem@MDNavigationDrawerItem>
-#    text_color: "#4a4939"
-#    icon_color: "#4a4939"
-    focus_behavior: False
-#    selected_color: "#4a4939"
-    _no_ripple_effect: True
+    #specific_text_color: root.theme_cls.secondary_text_color
+    #opposite_colors: False
+    text_color: 'Secondary'
     
 MDScreen:
-    name: "XXX"
     MDNavigationLayout:
 
         MDScreenManager:
@@ -24,12 +18,15 @@ MDScreen:
             #New Game
             MDScreen:
                 name: "newgame"
-                MDTopAppBar:
-                    title: "New Game"
-                    elevation: 4
-                    pos_hint: {"top": 1}
-                    left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
                 BoxLayout:
+                    id: optionsBox
+                    orientation: "vertical"
+                    MDTopAppBar:
+                        title: "New Game"
+                        elevation: 4
+                        pos_hint: {"top": 1}
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                    MDBoxLayout:
 
             #Players
             MDScreen:
@@ -91,62 +88,118 @@ MDScreen:
             #Options
             MDScreen:
                 name: "options"
-                MDTopAppBar:
-                    title: "Options"
-                    elevation: 4
-                    pos_hint: {"top": 1}
-                    left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                on_pre_enter: app.open_options_screen()
                 BoxLayout:
-                    id: optionsgrid
-                    #cols: 2
-                    MDLabel:
-                        text: "Dark mode"
-                        size_hint_x: 0.8
+                    id: optionsBox
+                    orientation: "vertical"
+                    MDTopAppBar:
+                        title: "Options"
+                        elevation: 4
                         pos_hint: {"top": 1}
-                    MDSwitch:
-                        id: darkmode
-                        size_hint_x: 0.2
-                        pos_hint: {"top": 1}
-                        #pos_hint: {"x": 1, "center_y": .9}
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                    MDBoxLayout:
+                        padding: "24dp"
+                        orientation: "vertical"
+                        adaptive_height: True
+                        GridLayout:
+                            spacing: 12
+                            cols: 2
+                            MDLabel:
+                                text: "Dark mode"
+                                theme_text_color: "Primary"
+                            MDSwitch:
+                                id: swdarkmode
+                                active: app.theme_cls.theme_style == "Dark"
+                                thumb_color_inactive: "lightgrey"
+                                on_active: app.o.change_darkmode(self)
+                            
+                    MDWidget:
+
+#        MDNavigationDrawer:
+#            id: nav_drawer
+#            #radius: (0, 16, 16, 0)
+#                
+#            MDNavigationDrawerMenu:
+
+#                DrawerClickableItem:
+#                    icon: "plus"
+#                    text: "New Game"
+#                    on_release: app.root.ids.scr_mngr.current = 'newgame'
+#                    on_release: nav_drawer.set_state("close")
+#                    
+#                DrawerClickableItem:
+#                    icon: "account-multiple"
+#                    text: "Players"
+#                    on_release: app.root.ids.scr_mngr.current = 'players'
+#                    on_release: nav_drawer.set_state("close")
+#           
+#                DrawerClickableItem:
+#                    icon: "chess-pawn"
+#                    text: "Games"
+#                    on_release: app.root.ids.scr_mngr.current = 'games'
+#                    on_release: nav_drawer.set_state("close")
+
+#                DrawerClickableItem:
+#                    icon: "history"
+#                    text: "Games History"
+#                    on_release: app.root.ids.scr_mngr.current = 'gameshistory'
+#                    on_release: nav_drawer.set_state("close")
+
+#                DrawerClickableItem:
+#                    icon: "information"
+#                    text: "About"
+#                    on_release: app.root.ids.scr_mngr.current = 'about'
+#                    on_release: nav_drawer.set_state("close")
+
+#                DrawerClickableItem:
+#                    icon: "cog"
+#                    text: "Options"
+#                    on_release: app.root.ids.scr_mngr.current = 'options'
+#                    on_release: nav_drawer.set_state("close")
 
         MDNavigationDrawer:
             id: nav_drawer
-            radius: (0, 16, 16, 0)
+
+            BoxLayout:
+                orientation: 'vertical'
+                #padding: "8dp"
+                spacing: "8dp"
                 
-            MDNavigationDrawerMenu:
-
-                DrawerClickableItem:
-                    icon: "plus"
-                    text: "New Game"
-                    on_release: app.root.ids.scr_mngr.current = 'newgame'
-                    on_release: nav_drawer.set_state("close")
-                    
-                DrawerClickableItem:
-                    icon: "account-multiple"
-                    text: "Players"
-                    on_release: app.root.ids.scr_mngr.current = 'players'
-                    on_release: nav_drawer.set_state("close")
-           
-                DrawerClickableItem:
-                    icon: "chess-pawn"
-                    text: "Games"
-                    on_release: app.root.ids.scr_mngr.current = 'games'
-                    on_release: nav_drawer.set_state("close")
-
-                DrawerClickableItem:
-                    icon: "history"
-                    text: "Games History"
-                    on_release: app.root.ids.scr_mngr.current = 'gameshistory'
-                    on_release: nav_drawer.set_state("close")
-
-                DrawerClickableItem:
-                    icon: "information"
-                    text: "About"
-                    on_release: app.root.ids.scr_mngr.current = 'about'
-                    on_release: nav_drawer.set_state("close")
-
-                DrawerClickableItem:
-                    icon: "cog"
-                    text: "Options"
-                    on_release: app.root.ids.scr_mngr.current = 'options'
-                    on_release: nav_drawer.set_state("close")
+                ScrollView:
+                    MDList:
+                        OneLineIconListItem:
+                            text: "New Game"
+                            on_release: app.root.ids.scr_mngr.current = 'newgame'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "plus"
+                        OneLineIconListItem:
+                            text: "Players"
+                            on_release: app.root.ids.scr_mngr.current = 'players'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "account-multiple"
+                        OneLineIconListItem:
+                            text: "Games"
+                            on_release: app.root.ids.scr_mngr.current = 'games'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "chess-pawn"
+                        OneLineIconListItem:
+                            text: "Games history"
+                            on_release: app.root.ids.scr_mngr.current = 'gameshistory'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "history"
+                        OneLineIconListItem:
+                            text: "About"
+                            on_release: app.root.ids.scr_mngr.current = 'about'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "information"
+                        OneLineIconListItem:
+                            text: "Options"
+                            on_release: app.root.ids.scr_mngr.current = 'options'
+                            on_release: nav_drawer.set_state("close")
+                            IconLeftWidget:
+                                icon: "cog"
