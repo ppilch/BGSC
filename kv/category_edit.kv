@@ -1,0 +1,52 @@
+<IconListItem>
+
+    IconLeftWidget:
+        icon: root.icon
+
+<TooltipMDIconButton@MDIconButton+MDTooltip>
+
+<CategoryEdit>
+    orientation: "vertical"
+    padding: "0dp", "12dp", "0dp", "0dp"
+    size_hint_y: None
+    adaptive_height: True
+    
+    #MDLabel:
+#        text: "You can edit categories here"#. When a category order is not the last one, order of categories with higher numbers will be increased.",
+    
+    MDBoxLayout:
+        id: box_category_edit
+        orientation: "horizontal"
+        adaptive_height: True
+    
+        MDDropDownItem:
+            id: drp_category_edit
+            text: "Select category"
+            on_release: app.eg.open_drp_category_edit()
+        
+        Widget:
+            #This is to fill the space between drp and btn
+            size_hint_x: 1
+            
+        TooltipMDIconButton:
+            id: ico_select_action
+            icon: "dots-vertical"
+            tooltip_text: "See options"
+            pos_hint: {"top": 0.8}
+            on_release: app.eg.open_drp_category_actions()
+
+    MDTextField:
+        id: txt_category_name
+        hint_text: "Category name"
+        max_text_length: 50
+        helper_text: "Points/Gold/Sheep/Health/etc."
+        helper_text_mode: "persistent"
+        required: True
+    
+    MDTextField:
+        id: txt_category_order
+        hint_text: "Category order"
+        helper_text: "Empty order means adding to the end"
+        helper_text_mode: "persistent"
+        input_filter: "int"
+        

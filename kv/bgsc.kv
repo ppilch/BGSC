@@ -4,32 +4,22 @@
 #:import IconLeftWidget kivymd.uix.list.IconLeftWidget
 #:import images_path kivymd.images_path
 
+<TooltipMDIconButton@MDIconButton+MDTooltip>
 <DrawerClickableItem@MDNavigationDrawerItem>
-#    focus_color: "#e7e4c0"
-#    text_color: "#4a4939"
-#    icon_color: "#4a4939"
-#    ripple_color: "#c5bdd2"
-#    selected_color: "#0c6c4d"
-    #specific_text_color: root.theme_cls.secondary_text_color
-    #opposite_colors: False
-    text_color: 'Secondary'
 
 MDScreen:
     MDNavigationLayout:
 
         MDScreenManager:
         	id: scr_mngr
-
-            ####################
-            ##### Main screens #####
-            ####################
-            
-            ##### New Game #####
+        	
+            ###################          
+            ##### Start Game #####
             ###################
             MDScreen:
-                name: "newgame"
+                name: "startgame"
                 
-                BoxLayout:
+                MDBoxLayout:
                     id: optionsBox
                     orientation: "vertical"
                     
@@ -41,22 +31,18 @@ MDScreen:
                     
                     MDBoxLayout:
 
+            ################
             ##### Players #####
             ################
             MDScreen:
                 name: "players"
                 on_pre_enter: app.open_player_screen()
                 
-                BoxLayout:
+                MDBoxLayout:
                     id: playersBox
                     orientation: "vertical"
                     pos_hint: {"top": 1}
-                    #MDTopAppBar:
-#                        title: "Players"
-#                        elevation: 4
-#                        pos_hint: {"top": 1}
-#                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
-                        
+                    
                     MDBackdrop:
                         id: bkdp_players
                         left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
@@ -136,12 +122,88 @@ MDScreen:
             ################
             MDScreen:
                 name: "games"
-                MDTopAppBar:
-                    title: "Games"
-                    elevation: 4
+                on_pre_enter: app.open_games_screen()
+                
+                MDBoxLayout:
+                    id: gamesBox
+                    orientation: "vertical"
                     pos_hint: {"top": 1}
-                    left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
-                BoxLayout:               
+                    
+                    MDBackdrop:
+                        id: bkdp_games
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                        right_action_items: [["filter-menu", lambda x: app.g.open_games_backdrop(bkdp_games)]]
+                        title: "Games"
+                        radius_left: "0dp"
+                        radius_right: "0dp"
+                        header_text: "Filters: None"
+                
+                        MDBackdropBackLayer:
+                            id: backlayer_games
+                            
+                            MDBoxLayout:
+                                padding: "24dp"
+                                spacing: "12dp"
+                                orientation: "vertical"
+                                adaptive_height: True
+                                pos_hint: {"top": 1}
+                                
+                                MDTextField:
+                                    id: tf_player_search
+                                    hint_text: "Search game"
+                                    icon_right: "magnify"
+                                    mode: "fill"
+                                    pos_hint: {"top": 1}
+                                    fill_color_normal: app.theme_cls.bg_normal
+                                    icon_right_color_normal: app.theme_cls.opposite_bg_normal
+                                    icon_right_color_focus: app.theme_cls.opposite_bg_normal
+                                    #on_text: app.p.filter_games(self.text)
+                              
+                                MDWidget:
+                                    
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    spacing: "12dp"
+                                    adaptive_height: True
+                                            
+                                    MDSegmentedControl:
+                                        id: mdsc_game_order_column
+                                        #on_active: app.g.change_order_column(*args)
+                                        MDSegmentedControlItem:
+                                            text: "Default"
+                                        MDSegmentedControlItem:
+                                            text: "Name"
+                                    
+                                    MDSegmentedControl:
+                                        id: mdsc_game_order_direction
+                                        #on_active: app.g.change_order_direction(*args)
+                                        MDSegmentedControlItem:
+                                            text: "A-Z"
+                                        MDSegmentedControlItem:
+                                            text: "Z-A"
+                                            
+                            MDWidget:
+
+                        MDBackdropFrontLayer:
+                            backdrop: bkdp_games
+                
+                            ScrollView:
+                                do_scroll_x: False
+                                pos_hint: {"top": 1}
+                                
+                                MDList:
+                                    id: mdlGames
+                                    pos_hint: {"top": 1}
+                                                                
+                            
+                MDFloatingActionButton:
+                    icon: 'plus-thick'
+                    elevation_normal: 12
+                    pos_hint: {'center_x': 0.85, 'center_y':0.05}
+                    on_release:
+                        app.root.ids.scr_mngr.current = 'editgame'
+                        app.root.ids.scr_mngr.transition.direction = "left"
+                               
 
             #####################
             ##### Games History #####
@@ -153,7 +215,7 @@ MDScreen:
                     elevation: 4
                     pos_hint: {"top": 1}
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
-                BoxLayout:
+                MDBoxLayout:
 
             ################
             ##### About #####
@@ -165,7 +227,7 @@ MDScreen:
                     elevation: 4
                     pos_hint: {"top": 1}
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
-                BoxLayout:
+                MDBoxLayout:
 
             #################
             ##### Settings #####
@@ -190,7 +252,6 @@ MDScreen:
                             cols: 2
                             MDLabel:
                                 text: "Dark mode (requires restart)"
-                                theme_text_color: "Primary"
                             MDSwitch:
                                 id: swdarkmode
                                 active: app.theme_cls.theme_style == "Dark"
@@ -198,11 +259,205 @@ MDScreen:
                                 on_active: app.o.change_darkmode(self)
                             
                     MDWidget:
-
+                  
+            ###################      
+            ##### Edit Game #####
+            ###################
+            MDScreen:
+                id: scr_edit_game
+                name: "editgame"
+                #size_hint_y:0.5
+                #pos_hint: {"top":1}
+                on_pre_enter: app.open_editgame_screen()
+                on_enter: app.eg.editgame_post_load_screen()
+                
+                MDBoxLayout:
+                    orientation: "vertical"
+        
+        
+                    ### Top App Bar
+                    MDTopAppBar:
+                        id: tpb_editgame
+                        title: "Edit Game"
+                        left_action_items: [["arrow-left", lambda x: app.eg.dont_save_game(),"Back"]]
+                        right_action_items: [["delete", lambda x: app.eg.delete_game(),"Delete"],["content-save", lambda x: app.eg.save_game(),"Save"]]
+                        elevation: 4
+                        pos_hint: {"top": 1}
+                
+                    MDScrollView:
+                        id: edit_game_scroll_view
+                        #height: scr_edit_game.height/2
+                        #pos_hint: {"y": -tpb_editgame.height/scr_edit_game.height}
+                                    
+                        MDList:
+                            id: mylist
+                            size_hint_y: None
+                            height: self.minimum_height
+                            padding: "12dp", "0dp", "12dp", "0dp"
+                            spacing: "8dp"
+                            
+                            MDGridLayout:
+                                cols: 2
+                                size_hint_y: None
+                                height: self.minimum_height
+                                        
+                                MDTextField:
+                                    id: txt_game_name
+                                    hint_text: "Game name"
+                                    max_text_length: 50
+                                    font_size: "24dp"
+                                                    
+                                TooltipMDIconButton:
+                                    id: ico_favorite_game
+                                    icon: "star-outline"
+                                    tooltip_text: "Add to favorites"
+                                    icon_size: "30dp"
+                                    on_release: app.eg.change_favorites()
+                                
+                                MDTextField:
+                                    id: txt_counting_method
+                                    text: "At game end"
+                                    hint_text: "Counting method"
+                                    max_text_length: 50
+                                    font_size: "24dp"
+                                    required: True
+                                                             
+                                TooltipMDIconButton:
+                                    id: ico_counting_method
+                                    icon: "expand-all"
+                                    tooltip_text: "Select counting method"
+                                    on_release: app.eg.show_counting_method_dialog()
+            
+                            MDSegmentedControl:
+                                id: seg_scoring_type_rivcoop
+                                on_active: app.eg.scoring_type_rivcoop_change(*args)
+                                MDSegmentedControlItem:
+                                    id: sci_game_type_rivcoop_riv
+                                    text: "Rivalisation"
+                                    font_size: "14dp"
+                                MDSegmentedControlItem:
+                                    id: sci_game_type_rivcoop_coop
+                                    text: "Cooperation"
+                                    font_size: "14dp"
+                    
+                            MDSegmentedControl:
+                                id: seg_scoring_type_highlow
+                                on_active: app.eg.scoring_type_highlow_change(*args)
+                                MDSegmentedControlItem:
+                                    id: sci_game_type_highlow_high
+                                    text: "Highest score wins"
+                                    font_size: "14dp"
+                                MDSegmentedControlItem:
+                                    id: sci_game_type_highlow_low
+                                    text: "Lowest score wins"
+                                    font_size: "14dp"
+                                
+                            MDSegmentedControl:
+                                id: seg_scoring_type_updown
+                                on_active: app.eg.scoring_type_updown_change(*args)
+                                MDSegmentedControlItem:
+                                    text: "Scoring up"
+                                    font_size: "14dp"
+                                MDSegmentedControlItem:
+                                    text: "Scoring down"
+                                    font_size: "14dp"
+                                                                 
+                            MDSegmentedControl:
+                                id: seg_scoring_type_endround
+                                on_active: app.eg.scoring_type_endround_change(*args)
+                                MDSegmentedControlItem:
+                                    text: "Scoring at the end"
+                                    font_size: "14dp"
+                                MDSegmentedControlItem:
+                                    text: "Scoring after rounds"
+                                    font_size: "14dp"
+                                                        
+                            MDSegmentedControl:
+                                id: seg_scoring_type_defrounds
+                                on_active: app.eg.scoring_type_defrounds_change(*args)
+                                MDSegmentedControlItem:
+                                    text: "Defined rounds number"
+                                    font_size: "14dp"
+                                MDSegmentedControlItem:
+                                    text: "Undefined rounds number"
+                                    font_size: "14dp"
+                                    
+                            MDGridLayout:
+                                cols: 2
+                                size_hint_y: None
+                                height: self.minimum_height
+                                spacing: "12dp"
+                                padding: "0dp", "0dp", "0dp", "12dp"
+                                
+                                ### DropDown
+                                MDLabel:
+                                    text: "Game end condition:"
+                                    size_hint_x: 0.5
+                                                                
+                                MDDropDownItem:
+                                    id: drp_end_game_condition
+                                    text: "Manual"
+                                    size_hint_x: 0.5
+                                    on_release: app.eg.open_drp_game_end_conditions()
+                                
+                                ### TextFields               
+                                MDTextField:
+                                    id: txt_points_on_start
+                                    text: "1"
+                                    hint_text: "Points on start"
+                                    helper_text: "Leave empty if not defined"
+                                    helper_text_mode: "persistent"
+                                    input_filter: "int"
+                                    font_size: "24dp"
+                                    required: True
+                                                            
+                                MDTextField:
+                                    id: txt_score_ending_the_game
+                                    hint_text: "Score ending the game"
+                                    helper_text: "Leave empty if not defined"
+                                    helper_text_mode: "persistent"
+                                    input_filter: "int"
+                                    font_size: "24dp"
+                                    #size_hint_x: 0.5
+                                                    
+                                MDTextField:
+                                    id: txt_number_of_rounds
+                                    text: "1"
+                                    hint_text: "Number of rounds"
+                                    helper_text: "Minimum 1"
+                                    helper_text_mode: "persistent"
+                                    input_filter: "int"
+                                    font_size: "24dp"
+                                    on_text: app.eg.validate_number_of_rounds()
+                                                        
+                                MDTextField:
+                                    id: txt_round_name
+                                    text: "Game end"
+                                    hint_text: "Round name"
+                                    helper_text: "Round/Phase/Stage/etc."
+                                    helper_text_mode: "persistent"
+                                    font_size: "24dp"
+                                    required: True
+                                                    
+                                
+                    MDTabs:
+                        id: tab_edit_game
+                        padding: "12dp", "0dp", "12dp", "0dp"
+                        size_hint_y: 0.35
+                        Tab:
+                            id: tab_rounds
+                            title: "Rounds"
+                        Tab:
+                            id: tab_categories
+                            title: "Categories"
+                        Tab:
+                            id: tab_rules
+                            title: "Rules"
+                    
         MDNavigationDrawer:
             id: nav_drawer
 
-            BoxLayout:
+            MDBoxLayout:
                 orientation: 'vertical'
                 #padding: "8dp"
                 spacing: "8dp"
@@ -210,38 +465,51 @@ MDScreen:
                 ScrollView:
                     MDList:
                         OneLineIconListItem:
-                            text: "New Game"
-                            on_release: app.root.ids.scr_mngr.current = 'newgame'
-                            on_release: nav_drawer.set_state("close")
+                            text: "Start Game"
+                            on_release:
+                                app.root.ids.scr_mngr.current = 'startgame'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "plus"
                         OneLineIconListItem:
                             text: "Players"
-                            on_release: app.root.ids.scr_mngr.current = 'players'
-                            on_release: nav_drawer.set_state("close")
+                            on_release: 
+                                app.root.ids.scr_mngr.current = 'players'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "account-multiple"
                         OneLineIconListItem:
                             text: "Games"
-                            on_release: app.root.ids.scr_mngr.current = 'games'
-                            on_release: nav_drawer.set_state("close")
+                            on_release:
+                                app.root.ids.scr_mngr.current = 'games'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "chess-pawn"
                         OneLineIconListItem:
                             text: "Games history"
-                            on_release: app.root.ids.scr_mngr.current = 'gameshistory'
-                            on_release: nav_drawer.set_state("close")
+                            on_release:
+                                app.root.ids.scr_mngr.current = 'gameshistory'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "history"
                         OneLineIconListItem:
                             text: "About"
-                            on_release: app.root.ids.scr_mngr.current = 'about'
-                            on_release: nav_drawer.set_state("close")
+                            on_release:
+                                app.root.ids.scr_mngr.current = 'about'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "information"
                         OneLineIconListItem:
                             text: "Settings"
-                            on_release: app.root.ids.scr_mngr.current = 'settings'
-                            on_release: nav_drawer.set_state("close")
+                            on_release:
+                                app.root.ids.scr_mngr.current = 'settings'
+                                app.root.ids.scr_mngr.transition.direction = "left"
+                                nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "cog"
+                                

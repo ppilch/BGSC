@@ -56,10 +56,8 @@ class PlayersManagement(MDScreen):
     selected_player_avatar = "alpha-x-circle"
     action = "Add"
     players_already_loaded_from_db = False
-    sc_player_order_column = None
-    sc_player_order_direction = None
     player_filter_name = ""
-    player_order_column = "Name"
+    player_order_column = "Id"
     player_order_direction = "ASC"
     
     colors_dict = {
@@ -90,11 +88,9 @@ class PlayersManagement(MDScreen):
         self.running_app = MDApp.get_running_app()
         self.players_mdlist = self.running_app.root.ids.mdlPlayers
         self.reload_players_list()
-        self.players_already_loaded_from_db = True
-        self.sc_player_order_column = self.running_app.root.ids.mdsc_player_order_column
-        self.sc_player_order_column.ids.segment_panel.width = (Window.width - dp(60))/2
-        self.sc_player_order_direction = self.running_app.root.ids.mdsc_player_order_direction
-        self.sc_player_order_direction.ids.segment_panel.width = (Window.width - dp(60))/2
+        #Workaround from stackoverflow (size not working in .kv)
+        self.running_app.root.ids.mdsc_player_order_column.ids.segment_panel.width = (Window.width - dp(60))/2
+        self.running_app.root.ids.mdsc_player_order_direction.ids.segment_panel.width = (Window.width - dp(60))/2
                 
     def show_player_dialog(self, action):
         print(inspect.currentframe().f_code.co_name)
@@ -233,7 +229,8 @@ class PlayersManagement(MDScreen):
         print(inspect.currentframe().f_code.co_name)
         if not self.delete_player_confirmation_dialog:
             self.delete_player_confirmation_dialog = MDDialog(
-                text="Delete player?",
+                title="Delete player?",
+                text="This player still will be visible in history if played any games.",
                 buttons=[
                     MDFlatButton(text="CANCEL", on_release = lambda x: self.close_delete_player_confirmation_dialog(action = "CANCEL")),
                     MDFlatButton(text="YES", on_release = lambda x: self.close_delete_player_confirmation_dialog(action = "YES"))
