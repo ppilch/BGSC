@@ -5,8 +5,8 @@ class DBOperations:
     def __init__(self):
         self.conn = sqlite3.connect('bgsc.db')
         self.cursor = self.conn.cursor()
-        self.drop_all_objects()
-        #self.create_player_table()
+        #self.drop_all_objects()
+        self.create_player_table()
         self.create_setting_table()
  
     ################
@@ -15,10 +15,8 @@ class DBOperations:
                       
     def drop_all_objects(self):
         print(inspect.currentframe().f_code.co_name)
-        self.cursor.execute( 
-                                            #"DROP TABLE IF EXISTS player; "
-                                            "DROP TABLE IF EXISTS option; "
-                                            )
+        self.cursor.execute("DROP TABLE IF EXISTS player")
+        self.cursor.execute("DROP TABLE IF EXISTS option")
                                             
     ################
     ##### player #####
@@ -90,7 +88,7 @@ class DBOperations:
                                             )
         self.conn.commit()
         
-    def get_player(self, id):
+    def get_player(self, id, name, order_col, order_dir):
         print(inspect.currentframe().f_code.co_name)
         players = self.cursor.execute(
                                             "SELECT "
@@ -98,8 +96,10 @@ class DBOperations:
                                             "FROM "
                                             "player "
                                             "WHERE "
-                                            f"(id = {id} or {id} = -1) AND "
-                                            "is_deleted = 0"
+                                            f"(id = {id} OR {id} = -1) AND "
+                                            "is_deleted = 0 AND "
+                                            f"(name LIKE '%{name}%' OR '{name}' = '-1') "
+                                            f"ORDER BY {order_col} {order_dir}"
                                             ).fetchall()
         self.conn.commit()
         return players

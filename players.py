@@ -1,10 +1,12 @@
 ####################################################################
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import ObjectProperty, ListProperty
+from kivy.properties import ObjectProperty, ListProperty, NumericProperty
 from kivy.uix.image import Image
+from kivy.core.window import Window
+from kivy.metrics import dp
 import inspect
- 
+
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList, OneLineAvatarIconListItem, IconLeftWidget, IconRightWidget
 from kivymd.app import App, MDApp
@@ -12,11 +14,12 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.icon_definitions import md_icons
- 
+from kivymd.uix.snackbar import Snackbar
+
 from db import *
- 
+
 dbo = DBOperations()
- 
+
 def assign_icon(txtName):
     print(inspect.currentframe().f_code.co_name)
     firstLetter = txtName[0].lower()
@@ -29,7 +32,7 @@ def assign_icon(txtName):
                 
 class PlayerEdit(BoxLayout):
     pass
- 
+
 class PlayerWithAvatar(OneLineAvatarIconListItem):
     def __init__(self, pk=None, **kwargs):
         super().__init__(**kwargs)
@@ -53,6 +56,11 @@ class PlayersManagement(MDScreen):
     selected_player_avatar = "alpha-x-circle"
     action = "Add"
     players_already_loaded_from_db = False
+    sc_player_order_column = None
+    sc_player_order_direction = None
+    player_filter_name = ""
+    player_order_column = "Name"
+    player_order_direction = "ASC"
     
     colors_dict = {
         "red":["checkbox-blank-circle",[244/255,67/255,54/255,1]],
@@ -76,15 +84,17 @@ class PlayersManagement(MDScreen):
         "white":["checkbox-blank-circle",[230/255,230/255,230/255,1]],
         "black":["checkbox-blank-circle",[51/255,51/255,51/255,1]]
     }
- 
+
     def players_load_screen(self):
         print(inspect.currentframe().f_code.co_name)
-        if self.players_already_loaded_from_db == False:
-            self.running_app = MDApp.get_running_app()
-            self.players_mdlist = self.running_app.root.ids.mdlPlayers
-            db_players = dbo.get_player(-1)
-            self.load_player(db_players)
-            self.players_already_loaded_from_db = True
+        self.running_app = MDApp.get_running_app()
+        self.players_mdlist = self.running_app.root.ids.mdlPlayers
+        self.reload_players_list()
+        self.players_already_loaded_from_db = True
+        self.sc_player_order_column = self.running_app.root.ids.mdsc_player_order_column
+        self.sc_player_order_column.ids.segment_panel.width = (Window.width - dp(60))/2
+        self.sc_player_order_direction = self.running_app.root.ids.mdsc_player_order_direction
+        self.sc_player_order_direction.ids.segment_panel.width = (Window.width - dp(60))/2
                 
     def show_player_dialog(self, action):
         print(inspect.currentframe().f_code.co_name)
@@ -104,7 +114,7 @@ class PlayersManagement(MDScreen):
                 self.player_edit_content_cls.ids.tfPlayerName.required = True
                 self.player_edit_content_cls.ids.tfPlayerName.helper_text_mode = "on_error"
         self.player_dialog.open()
- 
+
     def close_player_dialog(self, *args):
         print(inspect.currentframe().f_code.co_name)
         self.player_dialog.dismiss()
@@ -160,8 +170,9 @@ class PlayersManagement(MDScreen):
             player_id = dbo.insert_player(player_name, player_avatar, player_color)
             print("inserted player id")
             print(player_id)
-            new_player = dbo.get_player(player_id[0][0])
-            self.load_player(new_player)
+            #new_player = dbo.get_player(player_id[0][0], "-1", "")
+            #self.load_player(new_player)
+            self.reload_players_list()
         if action == "Edit":
             print(method + "-Edit-action")
             self.selected_player.text = player_name
@@ -171,7 +182,8 @@ class PlayersManagement(MDScreen):
         if action == "Add" or action == "Edit":
             print(method + "-CloseDialog")
             self.close_player_dialog()
- 
+            self.show_saved_player_snackbar("saved")
+
     def get_id(self,  butt_instance):
         print(inspect.currentframe().f_code.co_name)
         the_id = None
@@ -190,7 +202,7 @@ class PlayersManagement(MDScreen):
             self.player_edit_content_cls.ids[color].icon = self.colors_dict[color][0]
         self.player_edit_content_cls.ids[selected_color_id].icon = "checkbox-marked-circle"
         self.selected_player_color = button.icon_color
- 
+
     def change_line_item(self, line_item, left_avatar):
         print(inspect.currentframe().f_code.co_name)
         # Here 'entry' is the widget that has been passed.
@@ -198,6 +210,7 @@ class PlayersManagement(MDScreen):
         self.selected_player = line_item
         self.selected_player_left_icon = left_avatar
         self.selected_player_left_icon_color = left_avatar.icon_color
+        self.selected_player_color = left_avatar.icon_color
         self.show_player_dialog(action="Edit")
         self.player_edit_content_cls.ids.tfPlayerName.text = self.selected_player.text
         selected_icon_color_name = list(self.colors_dict.keys())[list(self.colors_dict.values()).index(["checkbox-blank-circle",self.selected_player_left_icon_color])]
@@ -213,6 +226,8 @@ class PlayersManagement(MDScreen):
             self.close_player_dialog()
             dbo.delete_player_soft(id= self.selected_player.pk)
             self.players_mdlist.remove_widget(self.selected_player)
+            self.show_saved_player_snackbar("deleted")
+            
             
     def show_delete_player_confirmation_dialog(self):
         print(inspect.currentframe().f_code.co_name)
@@ -246,3 +261,52 @@ class PlayersManagement(MDScreen):
                 self.selected_player_color.append(player[5]/255)
                 self.selected_player_color.append(player[6])
                 self.save_player(None, action = "Load")
+                
+    def open_players_backdrop(self, the_backdrop):
+        print(inspect.currentframe().f_code.co_name)
+        the_backdrop.open(-Window.height / 4)
+        the_backdrop.left_action_items = [["menu",lambda x: self.running_app.root.ids.nav_drawer.set_state("toggle")]]
+        
+    def clear_players_list(self):
+        print(inspect.currentframe().f_code.co_name)
+        self.players_mdlist.clear_widgets()
+        
+    def filter_players(self, name):
+        print(inspect.currentframe().f_code.co_name)
+        if name == "":
+            self.player_filter_name = -1
+            self.running_app.root.ids.bkdp_players.header_text = f"Filters: None"
+        else:
+            self.player_filter_name = name
+            self.running_app.root.ids.bkdp_players.header_text = f"Filters: {name}"
+        self.reload_players_list()
+        
+    def change_player_order_column(self, segmented_control, segmented_item):
+        print(inspect.currentframe().f_code.co_name)
+        if segmented_item.text != "Name":
+            self.player_order_column = "id"
+        else:
+            self.player_order_column = "Name"
+        self.reload_players_list()
+        
+    def change_player_order_direction(self, segmented_control, segmented_item):
+        print(inspect.currentframe().f_code.co_name)
+        if segmented_item.text == "A-Z":
+            self.player_order_direction = "ASC"
+        else:
+            self.player_order_direction = "DESC"
+        self.reload_players_list()
+        
+    def reload_players_list(self):
+        self.clear_players_list()
+        db_players = dbo.get_player(-1, self.player_filter_name, self.player_order_column, self.player_order_direction)
+        self.load_player(db_players)
+        
+    def show_saved_player_snackbar(self, action):
+        Snackbar(
+            text=f"Player {action}",
+            snackbar_x="10dp",
+            snackbar_y="10dp",
+            size_hint_x=(Window.width - (dp(10) * 2)) / Window.width / 2,
+            #pos_hint = {'center_x': .5}
+        ).open()

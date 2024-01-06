@@ -1,3 +1,9 @@
+
+#:import os os
+#:import Window kivy.core.window.Window
+#:import IconLeftWidget kivymd.uix.list.IconLeftWidget
+#:import images_path kivymd.images_path
+
 <DrawerClickableItem@MDNavigationDrawerItem>
 #    focus_color: "#e7e4c0"
 #    text_color: "#4a4939"
@@ -7,47 +13,117 @@
     #specific_text_color: root.theme_cls.secondary_text_color
     #opposite_colors: False
     text_color: 'Secondary'
-    
+
 MDScreen:
     MDNavigationLayout:
 
         MDScreenManager:
         	id: scr_mngr
 
+            ####################
             ##### Main screens #####
-            #New Game
+            ####################
+            
+            ##### New Game #####
+            ###################
             MDScreen:
                 name: "newgame"
+                
                 BoxLayout:
                     id: optionsBox
                     orientation: "vertical"
+                    
                     MDTopAppBar:
                         title: "New Game"
                         elevation: 4
                         pos_hint: {"top": 1}
                         left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                    
                     MDBoxLayout:
 
-            #Players
+            ##### Players #####
+            ################
             MDScreen:
                 name: "players"
                 on_pre_enter: app.open_player_screen()
+                
                 BoxLayout:
                     id: playersBox
                     orientation: "vertical"
                     pos_hint: {"top": 1}
-                    MDTopAppBar:
-                        title: "Players"
-                        elevation: 4
-                        pos_hint: {"top": 1}
+                    #MDTopAppBar:
+#                        title: "Players"
+#                        elevation: 4
+#                        pos_hint: {"top": 1}
+#                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                        
+                    MDBackdrop:
+                        id: bkdp_players
                         left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+                        right_action_items: [["filter-menu", lambda x: app.p.open_players_backdrop(bkdp_players)]]
+                        #left_action_items: [['menu', lambda x: self.open()]]
+                        title: "Players"
+                        radius_left: "0dp"
+                        radius_right: "0dp"
+                        header_text: "Filters: None"
                 
-                    ScrollView:
-                        do_scroll_x: False
-                        pos_hint: {"top": 1}
-                        MDList:
-                            id: mdlPlayers
-                            pos_hint: {"top": 1}
+                        MDBackdropBackLayer:
+                            id: backlayer
+                            
+                            MDBoxLayout:
+                                padding: "24dp"
+                                spacing: "12dp"
+                                orientation: "vertical"
+                                adaptive_height: True
+                                pos_hint: {"top": 1}
+                                
+                                MDTextField:
+                                    id: tf_player_search
+                                    hint_text: "Search player"
+                                    icon_right: "magnify"
+                                    mode: "fill"
+                                    pos_hint: {"top": 1}
+                                    fill_color_normal: app.theme_cls.bg_normal
+                                    icon_right_color_normal: app.theme_cls.opposite_bg_normal
+                                    icon_right_color_focus: app.theme_cls.opposite_bg_normal
+                                    on_text: app.p.filter_players(self.text)
+                              
+                                MDWidget:
+                                    
+                                MDBoxLayout:
+                                    orientation: "horizontal"
+                                    spacing: "12dp"
+                                    adaptive_height: True
+                                            
+                                    MDSegmentedControl:
+                                        id: mdsc_player_order_column
+                                        on_active: app.p.change_player_order_column(*args)
+                                        MDSegmentedControlItem:
+                                            text: "Default"
+                                        MDSegmentedControlItem:
+                                            text: "Name"
+                                    
+                                    MDSegmentedControl:
+                                        id: mdsc_player_order_direction
+                                        on_active: app.p.change_player_order_direction(*args)
+                                        MDSegmentedControlItem:
+                                            text: "A-Z"
+                                        MDSegmentedControlItem:
+                                            text: "Z-A"
+                                            
+                            MDWidget:
+
+                        MDBackdropFrontLayer:
+                            backdrop: bkdp_players
+                
+                            ScrollView:
+                                do_scroll_x: False
+                                pos_hint: {"top": 1}
+                                
+                                MDList:
+                                    id: mdlPlayers
+                                    pos_hint: {"top": 1}
+                                                                
                             
                 MDFloatingActionButton:
                     icon: 'plus-thick'
@@ -55,7 +131,9 @@ MDScreen:
                     pos_hint: {'center_x': 0.85, 'center_y':0.05}
                     on_release: app.p.show_player_dialog(action="Add")
                 
-            #Games
+            ################
+            ##### Games #####
+            ################
             MDScreen:
                 name: "games"
                 MDTopAppBar:
@@ -65,7 +143,9 @@ MDScreen:
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
                 BoxLayout:               
 
-            #Games History
+            #####################
+            ##### Games History #####
+            #####################
             MDScreen:
                 name: "gameshistory"
                 MDTopAppBar:
@@ -75,7 +155,9 @@ MDScreen:
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
                 BoxLayout:
 
-            #About
+            ################
+            ##### About #####
+            ################
             MDScreen:
                 name: "about"
                 MDTopAppBar:
@@ -85,15 +167,17 @@ MDScreen:
                     left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
                 BoxLayout:
 
-            #Options
+            #################
+            ##### Settings #####
+            #################
             MDScreen:
-                name: "options"
+                name: "settings"
                 on_pre_enter: app.open_options_screen()
                 BoxLayout:
                     id: optionsBox
                     orientation: "vertical"
                     MDTopAppBar:
-                        title: "Options"
+                        title: "Settings"
                         elevation: 4
                         pos_hint: {"top": 1}
                         left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
@@ -105,7 +189,7 @@ MDScreen:
                             spacing: 12
                             cols: 2
                             MDLabel:
-                                text: "Dark mode"
+                                text: "Dark mode (requires restart)"
                                 theme_text_color: "Primary"
                             MDSwitch:
                                 id: swdarkmode
@@ -114,48 +198,6 @@ MDScreen:
                                 on_active: app.o.change_darkmode(self)
                             
                     MDWidget:
-
-#        MDNavigationDrawer:
-#            id: nav_drawer
-#            #radius: (0, 16, 16, 0)
-#                
-#            MDNavigationDrawerMenu:
-
-#                DrawerClickableItem:
-#                    icon: "plus"
-#                    text: "New Game"
-#                    on_release: app.root.ids.scr_mngr.current = 'newgame'
-#                    on_release: nav_drawer.set_state("close")
-#                    
-#                DrawerClickableItem:
-#                    icon: "account-multiple"
-#                    text: "Players"
-#                    on_release: app.root.ids.scr_mngr.current = 'players'
-#                    on_release: nav_drawer.set_state("close")
-#           
-#                DrawerClickableItem:
-#                    icon: "chess-pawn"
-#                    text: "Games"
-#                    on_release: app.root.ids.scr_mngr.current = 'games'
-#                    on_release: nav_drawer.set_state("close")
-
-#                DrawerClickableItem:
-#                    icon: "history"
-#                    text: "Games History"
-#                    on_release: app.root.ids.scr_mngr.current = 'gameshistory'
-#                    on_release: nav_drawer.set_state("close")
-
-#                DrawerClickableItem:
-#                    icon: "information"
-#                    text: "About"
-#                    on_release: app.root.ids.scr_mngr.current = 'about'
-#                    on_release: nav_drawer.set_state("close")
-
-#                DrawerClickableItem:
-#                    icon: "cog"
-#                    text: "Options"
-#                    on_release: app.root.ids.scr_mngr.current = 'options'
-#                    on_release: nav_drawer.set_state("close")
 
         MDNavigationDrawer:
             id: nav_drawer
@@ -198,8 +240,8 @@ MDScreen:
                             IconLeftWidget:
                                 icon: "information"
                         OneLineIconListItem:
-                            text: "Options"
-                            on_release: app.root.ids.scr_mngr.current = 'options'
+                            text: "Settings"
+                            on_release: app.root.ids.scr_mngr.current = 'settings'
                             on_release: nav_drawer.set_state("close")
                             IconLeftWidget:
                                 icon: "cog"
