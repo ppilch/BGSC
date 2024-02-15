@@ -3,3 +3,12 @@
 ################################################################################
 
 *.vsidx
+/.vs/BGSC/v17/.suo
+*.pyc
+/__pycache__/options.cpython-311.pyc
+/__pycache__/messages.cpython-311.pyc
+/__pycache__/players.cpython-311.pyc
+/__pycache__/editgame.cpython-311.pyc
+/__pycache__/db.cpython-311.pyc
+/__pycache__/datatable_operations.cpython-311.pyc
+/__pycache__/games.cpython-311.pyc

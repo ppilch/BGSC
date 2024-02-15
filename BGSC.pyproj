@@ -20,12 +20,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BGSC.py" />
+    <Compile Include="datatable_operations.py" />
     <Compile Include="db.py" />
+    <Compile Include="editgame.py" />
+    <Compile Include="games.py" />
+    <Compile Include="helpers.py" />
+    <Compile Include="initial_load.py" />
+    <Compile Include="mdcolors.py" />
+    <Compile Include="messages.py" />
     <Compile Include="options.py" />
     <Compile Include="players.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="kv\bgsc.kv" />
+    <Content Include="kv\category_edit.kv" />
+    <Content Include="kv\games.kv" />
+    <Content Include="kv\messages.kv" />
     <Content Include="kv\players.kv" />
   </ItemGroup>
   <ItemGroup>

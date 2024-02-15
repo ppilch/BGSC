@@ -51,7 +51,7 @@ MDScreen:
                         title: "Players"
                         radius_left: "0dp"
                         radius_right: "0dp"
-                        header_text: "Filters: None"
+                        header_text: "Filter: none"
                 
                         MDBackdropBackLayer:
                             id: backlayer
@@ -59,45 +59,27 @@ MDScreen:
                             MDBoxLayout:
                                 padding: "24dp"
                                 spacing: "12dp"
-                                orientation: "vertical"
+                                orientation: "horizontal"
                                 adaptive_height: True
                                 pos_hint: {"top": 1}
                                 
                                 MDTextField:
-                                    id: tf_player_search
-                                    hint_text: "Search player"
+                                    id: txt_player_search
+                                    hint_text: "Search players"
                                     icon_right: "magnify"
                                     mode: "fill"
                                     pos_hint: {"top": 1}
                                     fill_color_normal: app.theme_cls.bg_normal
                                     icon_right_color_normal: app.theme_cls.opposite_bg_normal
                                     icon_right_color_focus: app.theme_cls.opposite_bg_normal
-                                    on_text: app.p.filter_players(self.text)
+                                    on_text: app.p.filter_players_by_name(self.text)
                               
-                                MDWidget:
-                                    
-                                MDBoxLayout:
-                                    orientation: "horizontal"
-                                    spacing: "12dp"
-                                    adaptive_height: True
-                                            
-                                    MDSegmentedControl:
-                                        id: mdsc_player_order_column
-                                        on_active: app.p.change_player_order_column(*args)
-                                        MDSegmentedControlItem:
-                                            text: "Default"
-                                        MDSegmentedControlItem:
-                                            text: "Name"
-                                    
-                                    MDSegmentedControl:
-                                        id: mdsc_player_order_direction
-                                        on_active: app.p.change_player_order_direction(*args)
-                                        MDSegmentedControlItem:
-                                            text: "A-Z"
-                                        MDSegmentedControlItem:
-                                            text: "Z-A"
-                                            
-                            MDWidget:
+                                TooltipMDIconButton:
+                                    id: ico_player_sorting_order
+                                    icon: "sort-alphabetical-ascending"
+                                    tooltip_text: "Change sorting order"
+                                    shift_y: dp(100)
+                                    on_release: app.p.change_sorting_order(self.icon)
 
                         MDBackdropFrontLayer:
                             backdrop: bkdp_players
@@ -117,6 +99,7 @@ MDScreen:
                     pos_hint: {'center_x': 0.85, 'center_y':0.05}
                     on_release: app.p.show_player_dialog(action="Add")
                 
+
             ################
             ##### Games #####
             ################
@@ -132,11 +115,11 @@ MDScreen:
                     MDBackdrop:
                         id: bkdp_games
                         left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
-                        right_action_items: [["filter-menu", lambda x: app.g.open_games_backdrop(bkdp_games)]]
+                        right_action_items: [["bug-stop-outline", lambda x: 1/0],["filter-menu", lambda x: app.g.open_games_backdrop(bkdp_games)]]
                         title: "Games"
                         radius_left: "0dp"
                         radius_right: "0dp"
-                        header_text: "Filters: None"
+                        header_text: "Filters: none"
                 
                         MDBackdropBackLayer:
                             id: backlayer_games
@@ -144,12 +127,12 @@ MDScreen:
                             MDBoxLayout:
                                 padding: "24dp"
                                 spacing: "12dp"
-                                orientation: "vertical"
+                                orientation: "horizontal"
                                 adaptive_height: True
                                 pos_hint: {"top": 1}
                                 
                                 MDTextField:
-                                    id: tf_player_search
+                                    id: txt_game_search
                                     hint_text: "Search game"
                                     icon_right: "magnify"
                                     mode: "fill"
@@ -157,33 +140,23 @@ MDScreen:
                                     fill_color_normal: app.theme_cls.bg_normal
                                     icon_right_color_normal: app.theme_cls.opposite_bg_normal
                                     icon_right_color_focus: app.theme_cls.opposite_bg_normal
-                                    #on_text: app.p.filter_games(self.text)
+                                    on_text: app.g.filter_games_by_name(self.text)
                               
-                                MDWidget:
-                                    
-                                MDBoxLayout:
-                                    orientation: "horizontal"
-                                    spacing: "12dp"
-                                    adaptive_height: True
-                                            
-                                    MDSegmentedControl:
-                                        id: mdsc_game_order_column
-                                        #on_active: app.g.change_order_column(*args)
-                                        MDSegmentedControlItem:
-                                            text: "Default"
-                                        MDSegmentedControlItem:
-                                            text: "Name"
-                                    
-                                    MDSegmentedControl:
-                                        id: mdsc_game_order_direction
-                                        #on_active: app.g.change_order_direction(*args)
-                                        MDSegmentedControlItem:
-                                            text: "A-Z"
-                                        MDSegmentedControlItem:
-                                            text: "Z-A"
-                                            
-                            MDWidget:
+                                TooltipMDIconButton:
+                                    id: ico_game_sorting_order
+                                    icon: "sort-alphabetical-ascending"
+                                    tooltip_text: "Change sorting order"
+                                    shift_y: dp(100)
+                                    on_release: app.g.change_sorting_order(self.icon)
 
+                                TooltipMDIconButton:
+                                    id: ico_favorite_filter
+                                    icon: "star-off-outline"
+                                    tooltip_text: "Filter by favorite games"
+                                    #icon_size: "30dp"
+                                    shift_y: dp(100)
+                                    on_release: app.g.filter_games_by_favorite(self.icon)
+                              
                         MDBackdropFrontLayer:
                             backdrop: bkdp_games
                 
@@ -192,7 +165,7 @@ MDScreen:
                                 pos_hint: {"top": 1}
                                 
                                 MDList:
-                                    id: mdlGames
+                                    id: list_games
                                     pos_hint: {"top": 1}
                                                                 
                             
@@ -200,11 +173,8 @@ MDScreen:
                     icon: 'plus-thick'
                     elevation_normal: 12
                     pos_hint: {'center_x': 0.85, 'center_y':0.05}
-                    on_release:
-                        app.root.ids.scr_mngr.current = 'editgame'
-                        app.root.ids.scr_mngr.transition.direction = "left"
+                    on_release: app.g.create_new_game()
                                
-
             #####################
             ##### Games History #####
             #####################
@@ -266,37 +236,32 @@ MDScreen:
             MDScreen:
                 id: scr_edit_game
                 name: "editgame"
-                #size_hint_y:0.5
-                #pos_hint: {"top":1}
-                on_pre_enter: app.open_editgame_screen()
-                on_enter: app.eg.editgame_post_load_screen()
+                on_pre_enter: app.eg.editgame_load_screen()
                 
                 MDBoxLayout:
                     orientation: "vertical"
-        
         
                     ### Top App Bar
                     MDTopAppBar:
                         id: tpb_editgame
                         title: "Edit Game"
-                        left_action_items: [["arrow-left", lambda x: app.eg.dont_save_game(),"Back"]]
-                        right_action_items: [["delete", lambda x: app.eg.delete_game(),"Delete"],["content-save", lambda x: app.eg.save_game(),"Save"]]
+                        left_action_items: [["arrow-left", lambda x: app.eg.go_back_to_games(),"Back"]]
+                        right_action_items: [["bug-stop-outline", lambda x: 1/0],["delete", lambda x: app.eg.show_confirm_delete_dialog(),"Delete"],["content-save", lambda x: app.eg.save_counting_method(),"Save"]]
                         elevation: 4
                         pos_hint: {"top": 1}
                 
                     MDScrollView:
-                        id: edit_game_scroll_view
-                        #height: scr_edit_game.height/2
-                        #pos_hint: {"y": -tpb_editgame.height/scr_edit_game.height}
+                        id: scrl_edit_game
                                     
                         MDList:
-                            id: mylist
+                            id: list_edit_game
                             size_hint_y: None
                             height: self.minimum_height
-                            padding: "12dp", "0dp", "12dp", "0dp"
+                            padding: "12dp", "0dp", "12dp", "200dp"
                             spacing: "8dp"
                             
                             MDGridLayout:
+                                id: lay_game_name
                                 cols: 2
                                 size_hint_y: None
                                 height: self.minimum_height
@@ -306,82 +271,181 @@ MDScreen:
                                     hint_text: "Game name"
                                     max_text_length: 50
                                     font_size: "24dp"
-                                                    
+                                    on_text: app.eg.counting_method_changed(1)
+                               
                                 TooltipMDIconButton:
                                     id: ico_favorite_game
                                     icon: "star-outline"
-                                    tooltip_text: "Add to favorites"
+                                    tooltip_text: "Add game to favorites"
                                     icon_size: "30dp"
+                                    shift_y: dp(100)
+                                    theme_text_color: "Secondary"
                                     on_release: app.eg.change_favorites()
-                                
+
+                            MDGridLayout:
+                                id: lay_counting_method
+                                cols: 3
+                                size_hint_y: None
+                                height: self.minimum_height
+                                        
                                 MDTextField:
                                     id: txt_counting_method
                                     text: "At game end"
                                     hint_text: "Counting method"
                                     max_text_length: 50
-                                    font_size: "24dp"
-                                    required: True
-                                                             
+                                    on_text: app.eg.counting_method_changed(1)
+                                
+                                TooltipMDIconButton:
+                                    id: ico_counting_method_default
+                                    icon: "checkbox-blank-circle-outline"
+                                    tooltip_text: "Set as default counting method for this game"
+                                    shift_y: dp(100)
+                                    theme_text_color: "Secondary"
+                                    on_release: app.eg.change_default_counting_method()
+                
                                 TooltipMDIconButton:
                                     id: ico_counting_method
-                                    icon: "expand-all"
+                                    icon: "menu"
                                     tooltip_text: "Select counting method"
+                                    shift_y: dp(100)
+                                    theme_text_color: "Secondary"
                                     on_release: app.eg.show_counting_method_dialog()
-            
-                            MDSegmentedControl:
-                                id: seg_scoring_type_rivcoop
-                                on_active: app.eg.scoring_type_rivcoop_change(*args)
-                                MDSegmentedControlItem:
-                                    id: sci_game_type_rivcoop_riv
+                            
+                            MDBoxLayout:
+                                id: lay_toggle_rivcoop
+                                adaptive_height: True
+                                width: tpb_editgame.width
+                                spacing: "8dp"
+                                padding: "4dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                md_bg_color: app.theme_cls.bg_darkest
+                        
+                                MyToggleButton:
+                                    id: btn_rivalisation
                                     text: "Rivalisation"
-                                    font_size: "14dp"
-                                MDSegmentedControlItem:
-                                    id: sci_game_type_rivcoop_coop
+                                    width: lay_toggle_rivcoop.width / 2 - lay_toggle_rivcoop.padding[0] - lay_toggle_rivcoop.padding[2]
+                                    group: "rivcoop"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                        
+                                MyToggleButton:
+                                    id: btn_cooperation
                                     text: "Cooperation"
-                                    font_size: "14dp"
+                                    width: lay_toggle_rivcoop.width / 2 - lay_toggle_rivcoop.padding[0] - lay_toggle_rivcoop.padding[2]
+                                    group: "rivcoop"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
                     
-                            MDSegmentedControl:
-                                id: seg_scoring_type_highlow
-                                on_active: app.eg.scoring_type_highlow_change(*args)
-                                MDSegmentedControlItem:
-                                    id: sci_game_type_highlow_high
+                            MDBoxLayout:
+                                id: lay_toggle_highlow
+                                adaptive_height: True
+                                width: tpb_editgame.width
+                                spacing: "8dp"
+                                padding: "4dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                md_bg_color: app.theme_cls.bg_darkest
+                        
+                                MyToggleButton:
+                                    id: btn_highest
                                     text: "Highest score wins"
-                                    font_size: "14dp"
-                                MDSegmentedControlItem:
-                                    id: sci_game_type_highlow_low
+                                    width: lay_toggle_highlow.width / 2 - lay_toggle_highlow.padding[0] - lay_toggle_highlow.padding[2]
+                                    group: "highlow"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                        
+                                MyToggleButton:
+                                    id: btn_lowest
                                     text: "Lowest score wins"
-                                    font_size: "14dp"
-                                
-                            MDSegmentedControl:
-                                id: seg_scoring_type_updown
-                                on_active: app.eg.scoring_type_updown_change(*args)
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_highlow.width / 2 - lay_toggle_highlow.padding[0] - lay_toggle_highlow.padding[2]
+                                    group: "highlow"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                    
+                            MDBoxLayout:
+                                id: lay_toggle_updown
+                                adaptive_height: True
+                                width: tpb_editgame.width
+                                spacing: "8dp"
+                                padding: "4dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                md_bg_color: app.theme_cls.bg_darkest
+                        
+                                MyToggleButton:
+                                    id: btn_up
                                     text: "Scoring up"
-                                    font_size: "14dp"
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_updown.width / 2 - lay_toggle_updown.padding[0] - lay_toggle_updown.padding[2]
+                                    group: "updown"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                        
+                                MyToggleButton:
+                                    id: btn_down
                                     text: "Scoring down"
-                                    font_size: "14dp"
-                                                                 
-                            MDSegmentedControl:
-                                id: seg_scoring_type_endround
-                                on_active: app.eg.scoring_type_endround_change(*args)
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_updown.width / 2 - lay_toggle_updown.padding[0] - lay_toggle_updown.padding[2]
+                                    group: "updown"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                    
+                            MDBoxLayout:
+                                id: lay_toggle_endrounds
+                                adaptive_height: True
+                                width: tpb_editgame.width
+                                spacing: "8dp"
+                                padding: "4dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                md_bg_color: app.theme_cls.bg_darkest
+                        
+                                MyToggleButton:
+                                    id: btn_end
                                     text: "Scoring at the end"
-                                    font_size: "14dp"
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_endrounds.width / 2 - lay_toggle_endrounds.padding[0] - lay_toggle_endrounds.padding[2]
+                                    group: "endrounds"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                        
+                                MyToggleButton:
+                                    id: btn_rounds
                                     text: "Scoring after rounds"
-                                    font_size: "14dp"
-                                                        
-                            MDSegmentedControl:
-                                id: seg_scoring_type_defrounds
-                                on_active: app.eg.scoring_type_defrounds_change(*args)
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_endrounds.width / 2 - lay_toggle_endrounds.padding[0] - lay_toggle_endrounds.padding[2]
+                                    group: "endrounds"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                    
+                            MDBoxLayout:
+                                id: lay_toggle_defundef
+                                adaptive_height: True
+                                width: tpb_editgame.width
+                                spacing: "8dp"
+                                padding: "4dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                md_bg_color: app.theme_cls.bg_darkest
+                        
+                                MyToggleButton:
+                                    id: btn_defined
                                     text: "Defined rounds number"
-                                    font_size: "14dp"
-                                MDSegmentedControlItem:
+                                    width: lay_toggle_defundef.width / 2 - lay_toggle_defundef.padding[0] - lay_toggle_defundef.padding[2]
+                                    group: "defundef"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                        
+                                MyToggleButton:
+                                    id: btn_undefined
                                     text: "Undefined rounds number"
-                                    font_size: "14dp"
-                                    
+                                    width: lay_toggle_defundef.width / 2 - lay_toggle_defundef.padding[0] - lay_toggle_defundef.padding[2]
+                                    group: "defundef"
+                                    allow_no_selection: False
+                                    on_press: self.md_bg_color = app.theme_cls.bg_dark
+                                    on_release: app.eg.counting_method_changed(1)
+                    
                             MDGridLayout:
                                 cols: 2
                                 size_hint_y: None
@@ -393,9 +457,10 @@ MDScreen:
                                 MDLabel:
                                     text: "Game end condition:"
                                     size_hint_x: 0.5
+                                    theme_text_color: "Secondary"
                                                                 
                                 MDDropDownItem:
-                                    id: drp_end_game_condition
+                                    id: drp_game_end_condition
                                     text: "Manual"
                                     size_hint_x: 0.5
                                     on_release: app.eg.open_drp_game_end_conditions()
@@ -408,8 +473,8 @@ MDScreen:
                                     helper_text: "Leave empty if not defined"
                                     helper_text_mode: "persistent"
                                     input_filter: "int"
-                                    font_size: "24dp"
                                     required: True
+                                    on_text: app.eg.counting_method_changed(1)
                                                             
                                 MDTextField:
                                     id: txt_score_ending_the_game
@@ -417,8 +482,7 @@ MDScreen:
                                     helper_text: "Leave empty if not defined"
                                     helper_text_mode: "persistent"
                                     input_filter: "int"
-                                    font_size: "24dp"
-                                    #size_hint_x: 0.5
+                                    on_text: app.eg.counting_method_changed(1)
                                                     
                                 MDTextField:
                                     id: txt_number_of_rounds
@@ -427,7 +491,6 @@ MDScreen:
                                     helper_text: "Minimum 1"
                                     helper_text_mode: "persistent"
                                     input_filter: "int"
-                                    font_size: "24dp"
                                     on_text: app.eg.validate_number_of_rounds()
                                                         
                                 MDTextField:
@@ -436,23 +499,74 @@ MDScreen:
                                     hint_text: "Round name"
                                     helper_text: "Round/Phase/Stage/etc."
                                     helper_text_mode: "persistent"
-                                    font_size: "24dp"
                                     required: True
-                                                    
+                                    on_text: app.eg.counting_method_changed(1)
+                            
+                            MDGridLayout:
+                                id: box_counting_method_lbl_colors
+                                size_hint_y: None
+                                height: self.minimum_height
+                                cols: 2
+                            
+                                MDLabel:
+                                    id: lbl_counting_method_colors
+                                    text: "Player colors available in the game:"
+                                    theme_text_color: "Secondary"
                                 
-                    MDTabs:
-                        id: tab_edit_game
-                        padding: "12dp", "0dp", "12dp", "0dp"
-                        size_hint_y: 0.35
-                        Tab:
-                            id: tab_rounds
-                            title: "Rounds"
-                        Tab:
-                            id: tab_categories
-                            title: "Categories"
-                        Tab:
-                            id: tab_rules
-                            title: "Rules"
+                                TooltipMDIconButton:
+                                    id: ico_categories
+                                    icon: "pencil"
+                                    tooltip_text: "Edit available colors"
+                                    theme_text_color: "Secondary"
+                                    shift_y: dp(100)
+                                    on_release: app.eg.open_dialog_mdcolors()
+                            
+                            MDGridLayout:
+                                id: box_counting_method_colors
+                                size_hint_y: None
+                                height: self.minimum_height
+                                rows: 2
+                                cols: 10
+                                padding: 0, -dp(12), 0, 0
+                                
+                            MDGridLayout:
+                                cols: 2
+                                size_hint_y: None
+                                height: self.minimum_height
+                                #spacing: "12dp"
+                                padding: "0dp", "0dp", "0dp", "0dp"
+                                
+                                MDTextField:
+                                    id: txt_categories
+                                    hint_text: "Categories"
+                                    multiline: True
+                                    max_text_length: 1000
+                                    readonly: True
+                                    
+                                TooltipMDIconButton:
+                                    id: ico_categories
+                                    icon: "pencil"
+                                    tooltip_text: "Edit categories"
+                                    theme_text_color: "Secondary"
+                                    shift_y: dp(100)
+                                    on_release: app.eg.open_dialog_category()
+                            
+                            MDGridLayout:
+                                id: box_counting_method_notes
+                                size_hint_y: None
+                                height: self.minimum_height
+                                rows: 1
+                                cols: 1
+                                padding: 0, 0, 0, 0
+                                
+                                MDTextField:
+                                    id: txt_counting_method_notes
+                                    hint_text: "Notes and #tags"
+                                    multiline: True
+                                    max_text_length: 1000
+                                    on_text: app.eg.counting_method_changed(1)
+                           
+                                
                     
         MDNavigationDrawer:
             id: nav_drawer
@@ -471,7 +585,7 @@ MDScreen:
                                 app.root.ids.scr_mngr.transition.direction = "left"
                                 nav_drawer.set_state("close")
                             IconLeftWidget:
-                                icon: "plus"
+                                icon: "play"
                         OneLineIconListItem:
                             text: "Players"
                             on_release: 

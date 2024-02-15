@@ -17,8 +17,10 @@ from kivymd.icon_definitions import md_icons
 from kivymd.uix.snackbar import Snackbar
 
 from db import *
+from messages import Messages
 
 dbo = DBOperations()
+msg = Messages()
 
 def assign_icon(txtName):
     print(inspect.currentframe().f_code.co_name)
@@ -57,7 +59,6 @@ class PlayersManagement(MDScreen):
     action = "Add"
     players_already_loaded_from_db = False
     player_filter_name = ""
-    player_order_column = "Id"
     player_order_direction = "ASC"
     
     colors_dict = {
@@ -88,9 +89,6 @@ class PlayersManagement(MDScreen):
         self.running_app = MDApp.get_running_app()
         self.players_mdlist = self.running_app.root.ids.mdlPlayers
         self.reload_players_list()
-        #Workaround from stackoverflow (size not working in .kv)
-        self.running_app.root.ids.mdsc_player_order_column.ids.segment_panel.width = (Window.width - dp(60))/2
-        self.running_app.root.ids.mdsc_player_order_direction.ids.segment_panel.width = (Window.width - dp(60))/2
                 
     def show_player_dialog(self, action):
         print(inspect.currentframe().f_code.co_name)
@@ -178,7 +176,7 @@ class PlayersManagement(MDScreen):
         if action == "Add" or action == "Edit":
             print(method + "-CloseDialog")
             self.close_player_dialog()
-            self.show_saved_player_snackbar("saved")
+            msg.show_snackbar_OK("Player saved")
 
     def get_id(self,  butt_instance):
         print(inspect.currentframe().f_code.co_name)
@@ -222,7 +220,7 @@ class PlayersManagement(MDScreen):
             self.close_player_dialog()
             dbo.delete_player_soft(id= self.selected_player.pk)
             self.players_mdlist.remove_widget(self.selected_player)
-            self.show_saved_player_snackbar("deleted")
+            msg.show_snackbar_OK("Player deleted")
             
             
     def show_delete_player_confirmation_dialog(self):
@@ -261,49 +259,31 @@ class PlayersManagement(MDScreen):
                 
     def open_players_backdrop(self, the_backdrop):
         print(inspect.currentframe().f_code.co_name)
-        the_backdrop.open(-Window.height / 4)
+        the_backdrop.open(-2 * self.running_app.root.ids.txt_player_search.height)
         the_backdrop.left_action_items = [["menu",lambda x: self.running_app.root.ids.nav_drawer.set_state("toggle")]]
         
     def clear_players_list(self):
         print(inspect.currentframe().f_code.co_name)
         self.players_mdlist.clear_widgets()
         
-    def filter_players(self, name):
+    def filter_players_by_name(self, name):
         print(inspect.currentframe().f_code.co_name)
         if name == "":
             self.player_filter_name = -1
-            self.running_app.root.ids.bkdp_players.header_text = f"Filters: None"
+            self.running_app.root.ids.bkdp_players.header_text = f"Filter: none"
         else:
             self.player_filter_name = name
-            self.running_app.root.ids.bkdp_players.header_text = f"Filters: {name}"
+            self.running_app.root.ids.bkdp_players.header_text = f"Filter: player name = *{name}*"
         self.reload_players_list()
         
-    def change_player_order_column(self, segmented_control, segmented_item):
+    def change_sorting_order(self, order_icon):
         print(inspect.currentframe().f_code.co_name)
-        if segmented_item.text != "Name":
-            self.player_order_column = "id"
-        else:
-            self.player_order_column = "Name"
-        self.reload_players_list()
-        
-    def change_player_order_direction(self, segmented_control, segmented_item):
-        print(inspect.currentframe().f_code.co_name)
-        if segmented_item.text == "A-Z":
-            self.player_order_direction = "ASC"
-        else:
-            self.player_order_direction = "DESC"
+        self.running_app.root.ids.ico_player_sorting_order.icon = "sort-alphabetical-ascending" if order_icon == "sort-alphabetical-descending" else "sort-alphabetical-descending"
+        self.player_order_direction = "DESC" if order_icon == "sort-alphabetical-ascending" else "ASC"
         self.reload_players_list()
         
     def reload_players_list(self):
         self.clear_players_list()
-        db_players = dbo.get_player(-1, self.player_filter_name, self.player_order_column, self.player_order_direction)
+        db_players = dbo.get_player(-1, self.player_filter_name, "name", self.player_order_direction)
         self.load_player(db_players)
         
-    def show_saved_player_snackbar(self, action):
-        Snackbar(
-            text=f"Player {action}",
-            snackbar_x="10dp",
-            snackbar_y="10dp",
-            size_hint_x=(Window.width - (dp(10) * 2)) / Window.width / 2,
-            #pos_hint = {'center_x': .5}
-        ).open()
